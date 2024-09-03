@@ -1,27 +1,20 @@
-package com.example.pokemonapp
+package com.example.pokemonapp.ui.screens
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,83 +22,21 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.core.view.WindowCompat
+import androidx.navigation.NavHostController
+import com.example.pokemonapp.R
+import com.example.pokemonapp.navigation.Screen
 import com.example.pokemonapp.model.Pokemons
 
-class MainActivity : ComponentActivity() {
-    @OptIn(ExperimentalMaterial3Api::class)
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        setContent {
-            Scaffold(
-                topBar = {
-                    TopAppBar(
-                        title = {
-                            Image(
-                                painter = painterResource(id = R.drawable.pokemon),
-                                contentDescription = "Pokemon App",
-                                contentScale = ContentScale.Inside,
-                                modifier = Modifier
-                                    .size(120.dp)
-                            )
-
-                        },
-                        colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = Color.Transparent // Set background color
-                        ),
-                        modifier = Modifier.statusBarsPadding() // Padding to avoid overlap with status bar
-                    )
-                }
-            ) { innerPadding ->
-                Box(
-                    modifier = Modifier
-                        .padding(innerPadding)
-                        .fillMaxSize()
-                ) {
-                    PokemonList()
-                }
-            }
-        }
-    }
-}
-
 @Composable
-fun PokemonList(modifier: Modifier = Modifier) {
-    val pokemons = listOf(
-        Pokemons("Bullbasaur", "grass", 65, 65, R.drawable.bulbasaur),
-        Pokemons("Ivysaur", "grass", 80, 80, R.drawable.ivysaur),
-        Pokemons("Venusaur", "grass", 122, 120, R.drawable.venusaur),
-        Pokemons("Charmander", "fire", 60, 50, R.drawable.charmander),
-        Pokemons("Charmeleon", "fire", 80, 65, R.drawable.charmeleon),
-        Pokemons("Charizard", "fire", 159, 115, R.drawable.charizard),
-        Pokemons("Squirtle", "water", 50, 65, R.drawable.squirtle),
-        Pokemons("Wartortle", "water", 65, 80, R.drawable.wartortle),
-        Pokemons("Blastoise", "water", 135, 115, R.drawable.blastoise)
-    )
+fun PokemonUi(
+    modifier: Modifier,
+    pokemon: Pokemons,
+    navController: NavHostController
+) {
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxHeight()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.SpaceBetween
-    ) {
-        items(pokemons) { pokemon ->
-            PokemonUi(pokemon = pokemon)
-
-
-        }
-    }
-
-}
-
-
-@Composable
-fun PokemonUi(modifier: Modifier = Modifier, pokemon: Pokemons) {
     val backgroundColor = when (pokemon.type) {
         "grass" -> colorResource(id = R.color.green)
         "fire" -> colorResource(id = R.color.red)
@@ -129,6 +60,9 @@ fun PokemonUi(modifier: Modifier = Modifier, pokemon: Pokemons) {
             .size(150.dp)
             .background(color = backgroundColor, shape = RoundedCornerShape(16.dp))
             .padding(20.dp)
+            .clickable {
+                navController.navigate(Screen.Detail.route)
+            }
 
 
     ) {
@@ -234,28 +168,37 @@ fun PokemonUi(modifier: Modifier = Modifier, pokemon: Pokemons) {
 
         }
     }
+
 }
 
+
 @Composable
-fun CustomStatusBar() {
-    Box(
+fun HomeScreen(navController: NavHostController) {
+    val pokemons = listOf(
+        Pokemons("Bullbasaur", "grass", 65, 65, R.drawable.bulbasaur),
+        Pokemons("Ivysaur", "grass", 80, 80, R.drawable.ivysaur),
+        Pokemons("Venusaur", "grass", 122, 120, R.drawable.venusaur),
+        Pokemons("Charmander", "fire", 60, 50, R.drawable.charmander),
+        Pokemons("Charmeleon", "fire", 80, 65, R.drawable.charmeleon),
+        Pokemons("Charizard", "fire", 159, 115, R.drawable.charizard),
+        Pokemons("Squirtle", "water", 50, 65, R.drawable.squirtle),
+        Pokemons("Wartortle", "water", 65, 80, R.drawable.wartortle),
+        Pokemons("Blastoise", "water", 135, 115, R.drawable.blastoise)
+    )
+
+    LazyColumn(
         modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp) // Typical App Bar height
-            .background(Color.Blue)
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .fillMaxHeight()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(
-            text = "Pokémon Status Bar",
-            color = Color.White,
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold
-        )
+        items(pokemons) { pokemon ->
+            PokemonUi(Modifier, pokemon = pokemon, navController = navController)
+
+
+        }
+
+
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-private fun PokemonUiPreview() {
-
-}
