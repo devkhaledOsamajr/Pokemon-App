@@ -33,7 +33,7 @@ fun SetupNavGraph(navController: NavHostController) {
             val pokemonName = backStackEntry.arguments?.getString(Constans.POKEMON_NAME_KEY)
             val pokemonImage = backStackEntry.arguments?.getInt(Constans.POKEMON_IMAGE_KEY)
             if (pokemonName != null && pokemonImage != null) {
-                DetailScreen(pokemonName, pokemonImage)
+                DetailScreen(pokemonName, pokemonImage,navController)
             }
         }
 

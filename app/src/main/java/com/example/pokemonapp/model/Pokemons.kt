@@ -8,4 +8,6 @@ data class Pokemons(
     val attackPwr: Int? = null,
     val defensePwr: Int? = null,
     val icon: Int ,
-    )
+    ) {
+
+}

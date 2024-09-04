@@ -61,8 +61,10 @@ fun PokemonUi(
             .background(color = backgroundColor, shape = RoundedCornerShape(16.dp))
             .padding(horizontal = 24.dp, vertical = 10.dp)
             .clickable {
-                navController.navigate(Screen.Detail
-                    .createRoute("${pokemon.name}", pokemon.icon))
+                navController.navigate(
+                    Screen.Detail
+                        .createRoute("${pokemon.name}", pokemon.icon)
+                )
             }
 
 
@@ -181,7 +183,7 @@ fun PokemonUi(
 
 @Composable
 fun HomeScreen(navController: NavHostController) {
-    val pokemons = listOf(
+  /*  val pokemons = listOf(
         Pokemons("Bullbasaur", "grass", 65, 65, R.drawable.bulbasaur),
         Pokemons("Ivysaur", "grass", 80, 80, R.drawable.ivysaur),
         Pokemons("Venusaur", "grass", 122, 120, R.drawable.venusaur),
@@ -192,6 +194,8 @@ fun HomeScreen(navController: NavHostController) {
         Pokemons("Wartortle", "water", 65, 80, R.drawable.wartortle),
         Pokemons("Blastoise", "water", 135, 115, R.drawable.blastoise)
     )
+   */
+    val pokemons = PokemonList()
 
     LazyColumn(
         modifier = Modifier
@@ -207,5 +211,20 @@ fun HomeScreen(navController: NavHostController) {
 
 
     }
+}
+
+
+fun PokemonList():List<Pokemons> {
+    return  listOf(
+        Pokemons("Bullbasaur", "grass", 65, 65, R.drawable.bulbasaur),
+        Pokemons("Ivysaur", "grass", 80, 80, R.drawable.ivysaur),
+        Pokemons("Venusaur", "grass", 122, 120, R.drawable.venusaur),
+        Pokemons("Charmander", "fire", 60, 50, R.drawable.charmander),
+        Pokemons("Charmeleon", "fire", 80, 65, R.drawable.charmeleon),
+        Pokemons("Charizard", "fire", 159, 115, R.drawable.charizard),
+        Pokemons("Squirtle", "water", 50, 65, R.drawable.squirtle),
+        Pokemons("Wartortle", "water", 65, 80, R.drawable.wartortle),
+        Pokemons("Blastoise", "water", 135, 115, R.drawable.blastoise)
+    )
 }
 
