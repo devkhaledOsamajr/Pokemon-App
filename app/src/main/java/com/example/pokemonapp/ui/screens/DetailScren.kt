@@ -1,9 +1,11 @@
 package com.example.pokemonapp.ui.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -11,22 +13,47 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavHostController
 import com.example.pokemonapp.R
 import com.example.pokemonapp.model.Pokemons
+import kotlin.random.Random
 
 
 @Composable
-fun DetailScreen(pokemonName: String, pokemonImage: Int, navController: NavHostController) {
+fun DetailScreen(
+    pokemonName: String,
+    pokemonImage: Int,
+    navController: NavHostController
+) {
     val pokemons = PokemonList()
+    val selectedImage = remember {
+        mutableStateOf(pokemonImage)
+    }
+
+    var clickCount by remember { mutableStateOf(0) }
+    var randomHero by remember {
+        mutableStateOf(pokemons[Random.nextInt(pokemons.size)])
+
+    }
+    val selectedHeroAttack = getAttackValue(selectedImage.value)
+    var randomHeroAttack by remember { mutableStateOf(getAttackValue(randomHero.icon)) }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -40,7 +67,9 @@ fun DetailScreen(pokemonName: String, pokemonImage: Int, navController: NavHostC
                 .fillMaxWidth()
         ) {
             items(pokemons) { pokemon ->
-                PokemonListRowUi(pokemons = pokemon, navController = navController)
+                PokemonListRowUi(pokemons = pokemon, navController = navController, onClick = {
+                    selectedImage.value = pokemon.icon
+                })
 
             }
         }
@@ -52,24 +81,55 @@ fun DetailScreen(pokemonName: String, pokemonImage: Int, navController: NavHostC
                 .fillMaxWidth()
         )
         Row(
-            modifier = Modifier.fillMaxSize()
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .padding(vertical = 30.dp)
+                .fillMaxHeight()
         ) {
             ConstraintLayout(
                 modifier = Modifier.fillMaxWidth()
             ) {
-                val (player1, player2, dice) = createRefs()
+                val (
+                    player1Image,
+                    player1,
+                    player2,
+                    player2Image,
+                    dice,
+                    player1Attack,
+                    player1Defense,
+                    player2Attack,
+                    player2Defense) = createRefs()
 
+                createHorizontalChain(
+                    player1Image,
+                    dice,
+                    player2Image,
+                    chainStyle = ChainStyle.Spread
+                )
+                Text(
+                    text = "Player 1",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .padding(horizontal = 28.dp)
+                        .constrainAs(player1) {
+                            top.linkTo(parent.top)
+                            start.linkTo(player1Image.start)
+                        }
 
+                )
                 Image(
-                    painter = painterResource(id = pokemonImage),
+                    painter = painterResource(id = selectedImage.value),
                     contentDescription = "player 1 hero",
-                    contentScale = ContentScale.Crop,
+                    contentScale = ContentScale.Inside,
                     modifier = Modifier
                         .padding(horizontal = 28.dp, vertical = 20.dp)
                         .size(100.dp)
-                        .constrainAs(player1) {
-                            start.linkTo(parent.start)
-                            top.linkTo(parent.top)
+                        .constrainAs(player1Image) {
+                            start.linkTo(player1Image.start)
+                            top.linkTo(player1.bottom)
+                            bottom.linkTo(player2Image.bottom)
+
                         }
 
                 )
@@ -78,13 +138,93 @@ fun DetailScreen(pokemonName: String, pokemonImage: Int, navController: NavHostC
                     contentDescription = "dice random",
                     modifier = Modifier
                         .padding(horizontal = 20.dp)
-                        .size(60.dp)
+                        .size(40.dp)
                         .constrainAs(dice) {
-                            start.linkTo(player1.end)
-                            bottom.linkTo(player1.bottom)
+                            start.linkTo(player1Image.end)
+                            bottom.linkTo(player1Image.bottom)
+                        }
+                        .clickable {
+
+
+                            if (clickCount < 2) {
+                                randomHero = pokemons.random()
+                                randomHeroAttack = getAttackValue(randomHero.icon)
+                                clickCount++
+
+                            }
+
+                        }
+                )
+                Text(
+                    text = "Player 2",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .padding(horizontal = 28.dp)
+                        .constrainAs(player2) {
+                            bottom.linkTo(player2Image.top)
+                            start.linkTo(player2Image.start)
                         }
 
                 )
+                Image(
+                    painter = painterResource(id = randomHero.icon),
+                    contentDescription = "player 2",
+                    contentScale = ContentScale.Inside,
+                    modifier = Modifier
+                        .padding(horizontal = 28.dp, vertical = 20.dp)
+                        .size(100.dp)
+                        .constrainAs(player2Image) {
+                            start.linkTo(dice.end)
+                            end.linkTo(parent.end)
+                            bottom.linkTo(player1Image.bottom)
+                        }
+                )
+                Text(
+                    text = "Attack:${selectedHeroAttack}",
+                    fontSize = 16.sp,
+                    modifier = Modifier
+                        .padding(horizontal = 28.dp)
+                        .constrainAs(player1Attack) {
+                            top.linkTo(player1Image.bottom)
+                            start.linkTo(player1Image.start)
+
+                        }
+                )
+                Text(
+                    text = "Defense:",
+                    fontSize = 16.sp,
+                    modifier = Modifier
+                        .padding(horizontal = 28.dp)
+                        .constrainAs(player1Defense) {
+                            top.linkTo(player1Attack.bottom)
+                            start.linkTo(player1Attack.start)
+
+                        }
+                )
+                Text(
+                    text = "Attack:${randomHeroAttack}",
+                    fontSize = 16.sp,
+                    modifier = Modifier
+                        .padding(horizontal = 28.dp)
+                        .constrainAs(player2Attack) {
+                            top.linkTo(player2Image.bottom)
+                            start.linkTo(player2Image.start)
+
+                        }
+                )
+                Text(
+                    text = "Defense:",
+                    fontSize = 16.sp,
+                    modifier = Modifier
+                        .padding(horizontal = 28.dp)
+                        .constrainAs(player2Defense) {
+                            top.linkTo(player2Attack.bottom)
+                            start.linkTo(player2Attack.start)
+
+                        }
+                )
+
             }
         }
 
@@ -94,17 +234,36 @@ fun DetailScreen(pokemonName: String, pokemonImage: Int, navController: NavHostC
 
 }
 
+fun getAttackValue(icon: Int): Any {
+    return when (icon) {
+        R.drawable.charmeleon -> 65
+        R.drawable.venusaur -> 122
+        R.drawable.bulbasaur -> 65
+        R.drawable.blastoise -> 135
+        R.drawable.squirtle -> 50
+        R.drawable.charizard -> 159
+        R.drawable.ivysaur -> 80
+        R.drawable.wartortle -> 65
+        R.drawable.charmander -> 60
+        else -> {
+            10
+        }
+    }
+}
+
 
 @Composable
 fun PokemonListRowUi(
     modifier: Modifier = Modifier,
     pokemons: Pokemons,
-    navController: NavHostController
+    navController: NavHostController,
+    onClick: () -> Unit
+
 ) {
     ConstraintLayout(
         Modifier.fillMaxWidth()
     ) {
-        val (heroImage, horizontalLine, player1, player2, randomDice) = createRefs()
+        val (heroImage) = createRefs()
 
 
 
@@ -119,10 +278,15 @@ fun PokemonListRowUi(
                     start.linkTo(parent.start)
                     top.linkTo(parent.top)
                 }
+                .clickable(onClick = onClick)
 
         )
 
     }
+}
+
+fun getRandomPokemons(pokemons: List<Pokemons>): Pokemons {
+    return pokemons[Random.nextInt(pokemons.size)]
 }
 
 

@@ -26,7 +26,8 @@ fun SetupNavGraph(navController: NavHostController) {
             route = Screen.Detail.route,
             arguments = listOf(
                 navArgument(Constans.POKEMON_NAME_KEY) { type = NavType.StringType },
-                navArgument(Constans.POKEMON_IMAGE_KEY) { type = NavType.IntType}
+                navArgument(Constans.POKEMON_IMAGE_KEY) { type = NavType.IntType},
+
 
             )
         ) { backStackEntry ->

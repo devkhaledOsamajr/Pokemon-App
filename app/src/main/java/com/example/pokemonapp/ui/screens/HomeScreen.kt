@@ -63,7 +63,10 @@ fun PokemonUi(
             .clickable {
                 navController.navigate(
                     Screen.Detail
-                        .createRoute("${pokemon.name}", pokemon.icon)
+                        .createRoute(
+                            "${pokemon.name}",
+                            pokemon.icon
+                            )
                 )
             }
 
