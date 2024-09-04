@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -54,19 +55,22 @@ fun PokemonUi(
 
     Box(
         modifier = Modifier
-
             .fillMaxWidth()
-            .padding(10.dp)
+            .padding(horizontal = 5.dp, vertical = 10.dp)
             .size(150.dp)
             .background(color = backgroundColor, shape = RoundedCornerShape(16.dp))
-            .padding(20.dp)
+            .padding(horizontal = 24.dp, vertical = 10.dp)
             .clickable {
-                navController.navigate(Screen.Detail.route)
+                navController.navigate(Screen.Detail
+                    .createRoute("${pokemon.name}", pokemon.icon))
             }
 
 
     ) {
-        ConstraintLayout(modifier.fillMaxWidth()) {
+        ConstraintLayout(
+            modifier
+                .fillMaxSize()
+        ) {
             val (
                 pokemonName,
                 pokemonType,
@@ -84,7 +88,10 @@ fun PokemonUi(
                 fontWeight = FontWeight.ExtraBold,
                 modifier = Modifier
                     .statusBarsPadding()
-                    .constrainAs(pokemonName) { start.linkTo(parent.start) }
+                    .constrainAs(pokemonName) {
+                        start.linkTo(parent.start)
+                        top.linkTo(parent.top)
+                    }
             )
 
 
