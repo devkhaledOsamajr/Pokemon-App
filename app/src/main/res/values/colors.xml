@@ -13,5 +13,8 @@
     <color name="red_light">#FA5828</color>
     <color name="blue">#96d4cf</color>
     <color name="blue_light">#38BDB3</color>
+    <color name="yellow">#FDF44E</color>
+    <color name="green_btn">#114232</color>
+    <color name="blue_btn">#124076</color>
 
 </resources>

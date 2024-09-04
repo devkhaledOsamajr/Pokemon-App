@@ -1,6 +1,7 @@
 package com.example.pokemonapp.ui.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,7 +26,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -53,7 +58,11 @@ fun DetailScreen(
 
     }
     val selectedHeroAttack = getAttackValue(selectedImage.value)
+    val selectedHeroDefense = getDefenseValue(selectedImage.value)
     var randomHeroAttack by remember { mutableStateOf(getAttackValue(randomHero.icon)) }
+    var randomHeroDefense by remember {
+        mutableStateOf(getDefenseValue(randomHero.icon))
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -98,7 +107,8 @@ fun DetailScreen(
                     player1Attack,
                     player1Defense,
                     player2Attack,
-                    player2Defense) = createRefs()
+                    player2Defense,
+                    startBtn) = createRefs()
 
                 createHorizontalChain(
                     player1Image,
@@ -106,6 +116,7 @@ fun DetailScreen(
                     player2Image,
                     chainStyle = ChainStyle.Spread
                 )
+                createHorizontalChain(player1, player2, chainStyle = ChainStyle.Spread)
                 Text(
                     text = "Player 1",
                     fontSize = 22.sp,
@@ -131,7 +142,28 @@ fun DetailScreen(
                             bottom.linkTo(player2Image.bottom)
 
                         }
+                )
+                Text(
+                    text = "Attack:${selectedHeroAttack}",
+                    fontSize = 16.sp,
+                    modifier = Modifier
+                        .padding(horizontal = 28.dp)
+                        .constrainAs(player1Attack) {
+                            top.linkTo(player1Image.bottom)
+                            start.linkTo(player1Image.start)
 
+                        }
+                )
+                Text(
+                    text = "Defense:$selectedHeroDefense",
+                    fontSize = 16.sp,
+                    modifier = Modifier
+                        .padding(horizontal = 28.dp)
+                        .constrainAs(player1Defense) {
+                            top.linkTo(player1Attack.bottom)
+                            start.linkTo(player1Attack.start)
+
+                        }
                 )
                 Image(
                     painter = painterResource(id = R.drawable.dice),
@@ -144,15 +176,11 @@ fun DetailScreen(
                             bottom.linkTo(player1Image.bottom)
                         }
                         .clickable {
-
-
                             if (clickCount < 2) {
                                 randomHero = pokemons.random()
                                 randomHeroAttack = getAttackValue(randomHero.icon)
                                 clickCount++
-
                             }
-
                         }
                 )
                 Text(
@@ -180,28 +208,7 @@ fun DetailScreen(
                             bottom.linkTo(player1Image.bottom)
                         }
                 )
-                Text(
-                    text = "Attack:${selectedHeroAttack}",
-                    fontSize = 16.sp,
-                    modifier = Modifier
-                        .padding(horizontal = 28.dp)
-                        .constrainAs(player1Attack) {
-                            top.linkTo(player1Image.bottom)
-                            start.linkTo(player1Image.start)
 
-                        }
-                )
-                Text(
-                    text = "Defense:",
-                    fontSize = 16.sp,
-                    modifier = Modifier
-                        .padding(horizontal = 28.dp)
-                        .constrainAs(player1Defense) {
-                            top.linkTo(player1Attack.bottom)
-                            start.linkTo(player1Attack.start)
-
-                        }
-                )
                 Text(
                     text = "Attack:${randomHeroAttack}",
                     fontSize = 16.sp,
@@ -214,7 +221,7 @@ fun DetailScreen(
                         }
                 )
                 Text(
-                    text = "Defense:",
+                    text = "Defense:$randomHeroDefense",
                     fontSize = 16.sp,
                     modifier = Modifier
                         .padding(horizontal = 28.dp)
@@ -224,6 +231,33 @@ fun DetailScreen(
 
                         }
                 )
+                Button(
+                    onClick = { /*TODO*/ },
+                    colors = ButtonDefaults.buttonColors(
+                        contentColor = colorResource(id = R.color.yellow),
+                        containerColor = colorResource(id = R.color.blue_btn),
+
+                    ),
+                    modifier = Modifier
+
+                        .fillMaxWidth(0.3f)
+                        .padding(12.dp)
+                        .constrainAs(startBtn) {
+                            top.linkTo(player2Defense.bottom)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                        }
+
+
+                ) {
+                    Text(
+                        text = "Play",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        letterSpacing = 2.sp
+                    )
+
+                }
 
             }
         }
@@ -231,6 +265,26 @@ fun DetailScreen(
 
     }
 
+
+}
+
+fun getDefenseValue(icon: Int): Any {
+    return when (icon) {
+        R.drawable.charmeleon -> 65
+        R.drawable.venusaur -> 122
+        R.drawable.bulbasaur -> 65
+        R.drawable.blastoise -> 135
+        R.drawable.squirtle -> 50
+        R.drawable.charizard -> 159
+        R.drawable.ivysaur -> 80
+        R.drawable.wartortle -> 65
+        R.drawable.charmander -> 60
+        else -> {
+            10
+        }
+
+
+    }
 
 }
 
