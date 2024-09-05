@@ -74,7 +74,7 @@ fun PokemonUi(
     ) {
         ConstraintLayout(
             modifier
-                .fillMaxSize()
+                .fillMaxWidth()
         ) {
             val (
                 pokemonName,
@@ -165,7 +165,7 @@ fun PokemonUi(
             Image(
                 painter = painterResource(pokemon.icon),
                 contentDescription = "Bullbasaur",
-                contentScale = ContentScale.Crop,
+                contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .background(
                         shape = RoundedCornerShape(50.dp),
@@ -174,6 +174,9 @@ fun PokemonUi(
                     .constrainAs(pokemonIcon) {
                         end.linkTo(parent.end)
                         bottom.linkTo(pokemonDefensePwr.bottom)
+                        top.linkTo(parent.top)
+
+
                     }
                     .size(100.dp)
             )

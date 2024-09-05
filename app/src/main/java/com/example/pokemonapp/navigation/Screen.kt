@@ -8,8 +8,6 @@ sealed class Screen(val route: String) {
         Screen(
              route = "detail_screen/{${Constans.POKEMON_NAME_KEY}}/{${Constans.POKEMON_IMAGE_KEY}}"
 
-
-
     ) {
         fun createRoute(
             pokemonName: String,

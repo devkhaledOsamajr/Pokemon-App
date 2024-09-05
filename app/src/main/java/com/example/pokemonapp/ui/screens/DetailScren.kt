@@ -1,7 +1,11 @@
 package com.example.pokemonapp.ui.screens
 
+import android.util.MutableBoolean
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,6 +20,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,7 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -48,40 +53,35 @@ fun DetailScreen(
     navController: NavHostController
 ) {
     val pokemons = PokemonList()
-    val selectedImage = remember {
-        mutableStateOf(pokemonImage)
-    }
-
     var clickCount by remember { mutableStateOf(0) }
-    var randomHero by remember {
-        mutableStateOf(pokemons[Random.nextInt(pokemons.size)])
-
-    }
-    val selectedHeroAttack = getAttackValue(selectedImage.value)
-    val selectedHeroDefense = getDefenseValue(selectedImage.value)
+    var randomHero by remember { mutableStateOf(pokemons.random()) }
     var randomHeroAttack by remember { mutableStateOf(getAttackValue(randomHero.icon)) }
-    var randomHeroDefense by remember {
-        mutableStateOf(getDefenseValue(randomHero.icon))
+    val randomHeroDefense = getDefenseValue(randomHero.icon)
+    var selectedImage by remember { mutableStateOf(pokemonImage) }
+    val selectedHeroAttack = getAttackValue(selectedImage)
+    val selectedHeroDefense = getDefenseValue(selectedImage)
+    var showText by remember {
+        mutableStateOf(false)
     }
+
+
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(10.dp)
     ) {
-
         LazyRow(
             horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier
-
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
         ) {
             items(pokemons) { pokemon ->
-                PokemonListRowUi(pokemons = pokemon, navController = navController, onClick = {
-                    selectedImage.value = pokemon.icon
-                })
-
+                PokemonListRowUi(pokemons = pokemon) {
+                    selectedImage = pokemon.icon
+                }
             }
         }
+
         HorizontalDivider(
             color = Color.Gray,
             thickness = 1.dp,
@@ -89,6 +89,11 @@ fun DetailScreen(
                 .padding(10.dp)
                 .fillMaxWidth()
         )
+
+        AnimatedTextField(showText)
+
+
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -99,75 +104,66 @@ fun DetailScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 val (
-                    player1Image,
-                    player1,
-                    player2,
-                    player2Image,
-                    dice,
-                    player1Attack,
-                    player1Defense,
-                    player2Attack,
-                    player2Defense,
-                    startBtn) = createRefs()
+                    player1Image, player1, player2, player2Image, dice,
+                    player1Attack, player1Defense, player2Attack, player2Defense, startBtn
+                ) = createRefs()
 
                 createHorizontalChain(
-                    player1Image,
-                    dice,
-                    player2Image,
+                    player1Image, dice, player2Image,
                     chainStyle = ChainStyle.Spread
                 )
-                createHorizontalChain(player1, player2, chainStyle = ChainStyle.Spread)
+                createHorizontalChain(player1, player2, chainStyle = ChainStyle.SpreadInside)
+
                 Text(
-                    text = "Player 1",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
+                    text = "Player 1:   ",
+                    fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                    fontWeight = FontWeight.Medium,
                     modifier = Modifier
                         .padding(horizontal = 28.dp)
                         .constrainAs(player1) {
                             top.linkTo(parent.top)
                             start.linkTo(player1Image.start)
                         }
-
                 )
+
                 Image(
-                    painter = painterResource(id = selectedImage.value),
-                    contentDescription = "player 1 hero",
+                    painter = painterResource(id = selectedImage),
+                    contentDescription = "Player 1 hero",
                     contentScale = ContentScale.Inside,
                     modifier = Modifier
                         .padding(horizontal = 28.dp, vertical = 20.dp)
                         .size(100.dp)
                         .constrainAs(player1Image) {
-                            start.linkTo(player1Image.start)
                             top.linkTo(player1.bottom)
                             bottom.linkTo(player2Image.bottom)
-
                         }
                 )
+
                 Text(
-                    text = "Attack:${selectedHeroAttack}",
+                    text = "Attack: $selectedHeroAttack",
                     fontSize = 16.sp,
                     modifier = Modifier
                         .padding(horizontal = 28.dp)
                         .constrainAs(player1Attack) {
                             top.linkTo(player1Image.bottom)
                             start.linkTo(player1Image.start)
-
                         }
                 )
+
                 Text(
-                    text = "Defense:$selectedHeroDefense",
+                    text = "Defense: $selectedHeroDefense",
                     fontSize = 16.sp,
                     modifier = Modifier
                         .padding(horizontal = 28.dp)
                         .constrainAs(player1Defense) {
                             top.linkTo(player1Attack.bottom)
                             start.linkTo(player1Attack.start)
-
                         }
                 )
+
                 Image(
                     painter = painterResource(id = R.drawable.dice),
-                    contentDescription = "dice random",
+                    contentDescription = "Dice",
                     modifier = Modifier
                         .padding(horizontal = 20.dp)
                         .size(40.dp)
@@ -183,21 +179,22 @@ fun DetailScreen(
                             }
                         }
                 )
+
                 Text(
-                    text = "Player 2",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
+                    text = "Player 2:",
+                    fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                    fontWeight = FontWeight.Medium,
                     modifier = Modifier
                         .padding(horizontal = 28.dp)
                         .constrainAs(player2) {
                             bottom.linkTo(player2Image.top)
                             start.linkTo(player2Image.start)
                         }
-
                 )
+
                 Image(
                     painter = painterResource(id = randomHero.icon),
-                    contentDescription = "player 2",
+                    contentDescription = "Player 2 hero",
                     contentScale = ContentScale.Inside,
                     modifier = Modifier
                         .padding(horizontal = 28.dp, vertical = 20.dp)
@@ -210,45 +207,42 @@ fun DetailScreen(
                 )
 
                 Text(
-                    text = "Attack:${randomHeroAttack}",
+                    text = "Attack: $randomHeroAttack",
                     fontSize = 16.sp,
                     modifier = Modifier
                         .padding(horizontal = 28.dp)
                         .constrainAs(player2Attack) {
                             top.linkTo(player2Image.bottom)
                             start.linkTo(player2Image.start)
-
                         }
                 )
+
                 Text(
-                    text = "Defense:$randomHeroDefense",
+                    text = "Defense: $randomHeroDefense",
                     fontSize = 16.sp,
                     modifier = Modifier
                         .padding(horizontal = 28.dp)
                         .constrainAs(player2Defense) {
                             top.linkTo(player2Attack.bottom)
                             start.linkTo(player2Attack.start)
-
                         }
                 )
+
                 Button(
-                    onClick = { /*TODO*/ },
+                    onClick = {
+                        showText = !showText
+                              },
                     colors = ButtonDefaults.buttonColors(
                         contentColor = colorResource(id = R.color.yellow),
-                        containerColor = colorResource(id = R.color.blue_btn),
-
+                        containerColor = colorResource(id = R.color.blue_btn)
                     ),
                     modifier = Modifier
-
-                        .fillMaxWidth(0.3f)
                         .padding(12.dp)
                         .constrainAs(startBtn) {
                             top.linkTo(player2Defense.bottom)
                             start.linkTo(parent.start)
                             end.linkTo(parent.end)
                         }
-
-
                 ) {
                     Text(
                         text = "Play",
@@ -256,33 +250,55 @@ fun DetailScreen(
                         fontWeight = FontWeight.ExtraBold,
                         letterSpacing = 2.sp
                     )
-
                 }
 
             }
         }
+    }
+}
 
+
+
+@Composable
+fun AnimatedTextField(isVisible:Boolean) {
+
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = fadeIn(
+            animationSpec = tween(durationMillis = 1000)),
+        exit = fadeOut(
+            animationSpec = tween(durationMillis = 1000)),
+
+    ) {
+        Text(
+            text = "player Win",
+            fontSize = 30.sp,
+            fontWeight = FontWeight.SemiBold,
+            fontFamily = FontFamily.Monospace,
+            modifier = Modifier
+                .padding(vertical = 28.dp)
+
+
+        )
 
     }
-
-
 }
+
 
 fun getDefenseValue(icon: Int): Any {
     return when (icon) {
         R.drawable.charmeleon -> 65
-        R.drawable.venusaur -> 122
+        R.drawable.venusaur -> 120
         R.drawable.bulbasaur -> 65
-        R.drawable.blastoise -> 135
-        R.drawable.squirtle -> 50
-        R.drawable.charizard -> 159
+        R.drawable.blastoise -> 115
+        R.drawable.squirtle -> 65
+        R.drawable.charizard -> 115
         R.drawable.ivysaur -> 80
-        R.drawable.wartortle -> 65
-        R.drawable.charmander -> 60
+        R.drawable.wartortle -> 80
+        R.drawable.charmander -> 50
         else -> {
             10
         }
-
 
     }
 
@@ -290,7 +306,7 @@ fun getDefenseValue(icon: Int): Any {
 
 fun getAttackValue(icon: Int): Any {
     return when (icon) {
-        R.drawable.charmeleon -> 65
+        R.drawable.charmeleon -> 80
         R.drawable.venusaur -> 122
         R.drawable.bulbasaur -> 65
         R.drawable.blastoise -> 135
@@ -310,7 +326,6 @@ fun getAttackValue(icon: Int): Any {
 fun PokemonListRowUi(
     modifier: Modifier = Modifier,
     pokemons: Pokemons,
-    navController: NavHostController,
     onClick: () -> Unit
 
 ) {
